@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI·SW로 교육격차를 해소할 수 있을까?</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --card: #1a2235;
+    --border: #2a3a55;
+    --accent1: #38bdf8;
+    --accent2: #f59e0b;
+    --accent3: #f87171;
+    --accent4: #34d399;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --highlight: #fbbf24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ===== SLIDE BASE ===== */
+  .slide {
+    min-height: 100vh;
+    scroll-snap-align: start;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 64px;
+    overflow: hidden;
+  }
+
+  /* ===== NOISE TEXTURE ===== */
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .slide > * { position: relative; z-index: 1; }
+
+  /* ===== SLIDE 1: TITLE ===== */
+  #slide1 {
+    background: radial-gradient(ellipse at 20% 50%, #0f2a4a 0%, var(--bg) 60%),
+                radial-gradient(ellipse at 80% 20%, #1a1040 0%, transparent 50%);
+  }
+
+  .title-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .title-eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--accent1);
+    display: block;
+  }
+
+  .main-title {
+    font-size: clamp(36px, 5.5vw, 72px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .main-title .hl {
+    background: linear-gradient(90deg, var(--accent1), var(--accent4));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .main-title .warn {
+    background: linear-gradient(90deg, var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .title-sub {
+    font-size: clamp(14px, 1.8vw, 20px);
+    color: var(--text-muted);
+    font-weight: 300;
+    max-width: 640px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .thesis-box {
+    background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(52,211,153,0.06));
+    border: 1px solid rgba(56,189,248,0.25);
+    border-left: 3px solid var(--accent1);
+    border-radius: 8px;
+    padding: 20px 28px;
+    max-width: 680px;
+    font-size: clamp(13px, 1.5vw, 17px);
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .thesis-box span { color: var(--accent1); }
+
+  /* deco circles */
+  .deco-circle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .deco-c1 {
+    width: 480px; height: 480px;
+    right: -100px; top: -120px;
+    border: 1px solid rgba(56,189,248,0.08);
+    background: radial-gradient(circle at 40% 40%, rgba(56,189,248,0.04), transparent 70%);
+  }
+  .deco-c2 {
+    width: 280px; height: 280px;
+    right: 120px; top: 60px;
+    border: 1px solid rgba(56,189,248,0.12);
+  }
+  .deco-c3 {
+    width: 120px; height: 120px;
+    right: 240px; top: 180px;
+    background: radial-gradient(circle, rgba(56,189,248,0.1), transparent 70%);
+  }
+
+  /* page indicator */
+  .pg {
+    position: absolute;
+    bottom: 28px;
+    right: 64px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--border);
+    letter-spacing: 0.15em;
+  }
+
+  /* ===== SLIDE 2: WHY IT FAILS ===== */
+  #slide2 {
+    background: var(--bg);
+    padding-top: 56px;
+  }
+
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-size: clamp(26px, 3.5vw, 44px);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 36px;
+    line-height: 1.15;
+  }
+
+  .layer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+  }
+
+  .layer-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: border-color 0.3s;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .layer-card:hover { border-color: var(--accent1); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .layer-card:nth-child(1) { animation-delay: 0.1s; }
+  .layer-card:nth-child(2) { animation-delay: 0.2s; }
+  .layer-card:nth-child(3) { animation-delay: 0.3s; }
+  .layer-card:nth-child(4) { animation-delay: 0.4s; }
+
+  .layer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .layer-num {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .ln1 { background: rgba(248,113,113,0.15); color: var(--accent3); border: 1px solid rgba(248,113,113,0.3); }
+  .ln2 { background: rgba(245,158,11,0.15); color: var(--accent2); border: 1px solid rgba(245,158,11,0.3); }
+  .ln3 { background: rgba(56,189,248,0.15); color: var(--accent1); border: 1px solid rgba(56,189,248,0.3); }
+  .ln4 { background: rgba(52,211,153,0.15); color: var(--accent4); border: 1px solid rgba(52,211,153,0.3); }
+
+  .layer-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+
+  .layer-points {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .point {
+    font-size: clamp(11px, 1.1vw, 13px);
+    line-height: 1.5;
+    color: var(--text-muted);
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .point::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    font-size: 10px;
+    color: var(--border);
+  }
+
+  .point strong { color: var(--text); font-weight: 600; }
+
+  .evidence-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .et1 { background: rgba(248,113,113,0.08); color: var(--accent3); border: 1px solid rgba(248,113,113,0.2); }
+  .et2 { background: rgba(245,158,11,0.08); color: var(--accent2); border: 1px solid rgba(245,158,11,0.2); }
+  .et3 { background: rgba(56,189,248,0.08); color: var(--accent1); border: 1px solid rgba(56,189,248,0.2); }
+  .et4 { background: rgba(52,211,153,0.08); color: var(--accent4); border: 1px solid rgba(52,211,153,0.2); }
+
+  /* ===== SLIDE 3: ROADMAP ===== */
+  #slide3 {
+    background: radial-gradient(ellipse at 80% 80%, #0f2a1a 0%, var(--bg) 55%);
+  }
+
+  .roadmap-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin-top: 8px;
+  }
+
+  .roadmap-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 24px;
+    align-items: start;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .roadmap-row:nth-child(1) { animation-delay: 0.1s; }
+  .roadmap-row:nth-child(2) { animation-delay: 0.25s; }
+  .roadmap-row:nth-child(3) { animation-delay: 0.4s; }
+
+  .roadmap-phase {
+    text-align: right;
+    padding-right: 24px;
+    border-right: 2px solid var(--border);
+    padding-top: 4px;
+  }
+
+  .phase-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .phase-time {
+    font-size: clamp(16px, 2vw, 24px);
+    font-weight: 900;
+    line-height: 1.1;
+  }
+
+  .pt-short { color: var(--accent2); }
+  .pt-mid { color: var(--accent1); }
+  .pt-long { color: var(--accent4); }
+
+  .roadmap-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 2px;
+  }
+
+  .r-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: clamp(11px, 1.1vw, 13px);
+    color: var(--text-muted);
+    line-height: 1.5;
+    flex: 1 1 200px;
+    min-width: 180px;
+    transition: border-color 0.25s;
+  }
+
+  .r-item:hover { border-color: rgba(56,189,248,0.4); }
+
+  .r-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .rd1 { background: var(--accent2); }
+  .rd2 { background: var(--accent1); }
+  .rd3 { background: var(--accent4); }
+
+  /* ===== FINAL MESSAGE ===== */
+  .final-msg {
+    margin-top: 36px;
+    background: linear-gradient(135deg, rgba(52,211,153,0.07), rgba(56,189,248,0.05));
+    border: 1px solid rgba(52,211,153,0.2);
+    border-left: 3px solid var(--accent4);
+    border-radius: 8px;
+    padding: 20px 28px;
+    max-width: 760px;
+    animation: fadeUp 0.6s ease 0.55s both;
+  }
+
+  .final-msg p {
+    font-size: clamp(12px, 1.4vw, 15px);
+    font-weight: 600;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .final-msg span { color: var(--accent4); }
+
+  /* scroll hint */
+  .scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--border);
+    text-transform: uppercase;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  .scroll-arrow {
+    width: 14px; height: 14px;
+    border-right: 1.5px solid var(--border);
+    border-bottom: 1.5px solid var(--border);
+    transform: rotate(45deg);
+  }
+
+  /* mobile */
+  @media (max-width: 768px) {
+    .slide { padding: 36px 28px; }
+    .layer-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+    .roadmap-row { grid-template-columns: 1fr; }
+    .roadmap-phase { text-align: left; border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 8px; padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== SLIDE 1: TITLE ===== -->
+<section class="slide" id="slide1">
+  <div class="deco-circle deco-c1"></div>
+  <div class="deco-circle deco-c2"></div>
+  <div class="deco-circle deco-c3"></div>
+
+  <div class="title-eyebrow">교육 연구 발표 2025</div>
+
+  <h1 class="main-title">
+    <span class="hl">AI·SW</span>로<br>
+    <span class="warn">교육격차</span>를<br>
+    해소할 수 있을까?
+  </h1>
+
+  <p class="title-sub">
+    기술은 이미 교실에 들어왔다. 그런데 왜 격차는 줄지 않는가?<br>
+    문제의 4개 레이어와 생태계 설계 로드맵을 제안한다.
+  </p>
+
+  <div class="thesis-box">
+    💡 핵심 주장 &nbsp;—&nbsp;
+    <span>AI·SW는 교육격차 해소의 필요조건이지 충분조건이 아니다.</span><br>
+    도구가 아니라 <span>생태계</span>를 설계해야 한다.
+  </div>
+
+  <div class="scroll-hint">
+    <span>scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+  <div class="pg">01 / 03</div>
+</section>
+
+<!-- ===== SLIDE 2: WHY IT FAILS ===== -->
+<section class="slide" id="slide2">
+
+  <div class="section-tag">Problem Analysis</div>
+  <h2 class="section-title">왜 아직도 안 풀리는가 — 실패의 4개 레이어</h2>
+
+  <div class="layer-grid">
+
+    <!-- L1 -->
+    <div class="layer-card">
+      <div class="layer-header">
+        <div class="layer-num ln1">L1</div>
+        <div class="layer-name">🤖 AI 도구 자체의 한계</div>
+      </div>
+      <div class="layer-points">
+        <p class="point">
+          <strong>"개인화"라고 하지만</strong> 인지 수준만 맞출 뿐, 동기·감정·관계는 못 다룸<br>
+          → AI는 정답률·반응패턴은 분석하지만, 불안감·집중도는 포착 불가
+        </p>
+        <p class="point">
+          <strong>한국 교육과정에 특화된</strong> 고품질 AI 모델 부재 — 영어·수학 중심, 파편화
+        </p>
+        <div class="evidence-tag et1">📄 신종호·황영아(2024) / 한국교육개발원 RR2023-12</div>
+      </div>
+    </div>
+
+    <!-- L2 -->
+    <div class="layer-card">
+      <div class="layer-header">
+        <div class="layer-num ln2">L2</div>
+        <div class="layer-name">🏫 교사·학교 역량의 벽</div>
+      </div>
+      <div class="layer-points">
+        <p class="point">
+          <strong>연수는 있으나 현장 적용이 안 됨</strong> — AI 교육 서비스 수업 활용 경험 교사 <strong>38%</strong>에 불과
+        </p>
+        <p class="point">
+          <strong>"시험에 안 나오면 쓸 이유 없다"</strong>는 현실적 합리성 — 입시 구조가 변하지 않는 한 도구는 장식품
+        </p>
+        <div class="evidence-tag et2">📰 한국교육개발원 교사 1,000명 설문(2024) / 파이낸셜뉴스 2024.01</div>
+      </div>
+    </div>
+
+    <!-- L3 -->
+    <div class="layer-card">
+      <div class="layer-header">
+        <div class="layer-num ln3">L3</div>
+        <div class="layer-name">🏠 가정환경·동기의 격차</div>
+      </div>
+      <div class="layer-points">
+        <p class="point">
+          <strong>부모 학력·소득이 높을수록</strong> 디지털 리터러시 점수 높음 — 기기 보급 ≠ 학습 기회 평등
+        </p>
+        <p class="point">
+          <strong>AI를 학습에 쓰는 학생 = 원래 동기 있는 학생</strong> — "공부 잘하는 학생이 디지털도 잘 활용" (교사 공통 증언)
+        </p>
+        <div class="evidence-tag et3">📊 KEDI KEMS 2023 / 뉴시스 2025.08 — 한국 디지털 접근 OECD 1위, 수업 활용 최하위</div>
+      </div>
+    </div>
+
+    <!-- L4 -->
+    <div class="layer-card">
+      <div class="layer-header">
+        <div class="layer-num ln4">L4</div>
+        <div class="layer-name">⚙️ 구조·정책의 모순</div>
+      </div>
+      <div class="layer-points">
+        <p class="point">
+          <strong>예산은 인프라에 집중</strong>, 활용률은 낮음 — 특별교부금 3,818억 투입했지만 "연수 후 현장 적용 단절"
+        </p>
+        <p class="point">
+          <strong>교육 데이터 개인정보 규제</strong>로 AI 모델 고도화 막힘 — 개인정보위, AIDT 사전 실태점검서 다수 문제 확인·시정권고
+        </p>
+        <div class="evidence-tag et4">📰 개인정보보호위원회 보도자료(2025.05) / 서울신문 2024.04</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="pg">02 / 03</div>
+</section>
+
+<!-- ===== SLIDE 3: ROADMAP ===== -->
+<section class="slide" id="slide3">
+
+  <div class="section-tag">Solution Roadmap</div>
+  <h2 class="section-title">교육격차 해소를 위한<br>단계적 생태계 설계</h2>
+
+  <div class="roadmap-wrap">
+
+    <!-- 단기 -->
+    <div class="roadmap-row">
+      <div class="roadmap-phase">
+        <span class="phase-label">Phase 1</span>
+        <div class="phase-time pt-short">단기<br><small style="font-size:13px;font-weight:400">1~2년</small></div>
+      </div>
+      <div class="roadmap-items">
+        <div class="r-item"><div class="r-dot rd1"></div><div><strong style="color:var(--text)">도구 검증</strong><br>AI 튜터 교육 효과 측정 지표 표준화 — 지금은 측정조차 없음</div></div>
+        <div class="r-item"><div class="r-dot rd1"></div><div><strong style="color:var(--text)">현장 연수 혁신</strong><br>연수 → 수업 → 피드백 루프 구조로 전환, 단발 강의형 폐지</div></div>
+        <div class="r-item"><div class="r-dot rd1"></div><div><strong style="color:var(--text)">디지털 학습 코치</strong><br>취약계층 학생에 기기 + 사람 패키지 지원 병행</div></div>
+      </div>
+    </div>
+
+    <!-- 중기 -->
+    <div class="roadmap-row">
+      <div class="roadmap-phase">
+        <span class="phase-label">Phase 2</span>
+        <div class="phase-time pt-mid">중기<br><small style="font-size:13px;font-weight:400">3~5년</small></div>
+      </div>
+      <div class="roadmap-items">
+        <div class="r-item"><div class="r-dot rd2"></div><div><strong style="color:var(--text)">교육 데이터 인프라</strong><br>학습 이력 익명화·표준화 → AI 모델 훈련 활용 법·제도 정비</div></div>
+        <div class="r-item"><div class="r-dot rd2"></div><div><strong style="color:var(--text)">교사 역할 재정의</strong><br>AI = 반복·설명 / 교사 = 관계·동기·메타인지 코칭으로 분업</div></div>
+        <div class="r-item"><div class="r-dot rd2"></div><div><strong style="color:var(--text)">공교육 AI R&D</strong><br>국내 교육과정 특화 AI 튜터 개발 — 사교육 AI와 경쟁 가능한 수준으로</div></div>
+      </div>
+    </div>
+
+    <!-- 장기 -->
+    <div class="roadmap-row">
+      <div class="roadmap-phase">
+        <span class="phase-label">Phase 3</span>
+        <div class="phase-time pt-long">장기<br><small style="font-size:13px;font-weight:400">6~10년</small></div>
+      </div>
+      <div class="roadmap-items">
+        <div class="r-item"><div class="r-dot rd3"></div><div><strong style="color:var(--text)">격차 모니터링 시스템</strong><br>AI 도입 전후 교육격차 변화를 국가 단위로 지속 추적·공개</div></div>
+        <div class="r-item"><div class="r-dot rd3"></div><div><strong style="color:var(--text)">입시 구조 전환</strong><br>AI 활용 역량이 학습에 연결되도록 평가 체계 개편 병행</div></div>
+        <div class="r-item"><div class="r-dot rd3"></div><div><strong style="color:var(--text)">생태계 완성</strong><br>도구·교사·가정·정책 4개 레이어가 함께 작동하는 구조 구축</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="final-msg">
+    <p>
+      AI·SW는 격차를 <span>자동으로 줄이지 않는다</span>. 잘못 설계하면 오히려 격차를 가장 빠르게 벌리는 도구가 된다.<br>
+      우리가 설계해야 할 것은 도구가 아니라, 도구가 작동하는 <span>생태계</span>다.<br>
+      <span>교육격차 해소</span>는 AI가 하는 것이 아니라, AI를 어떻게 쓸지 결정하는 우리가 하는 것이다.
+    </p>
+  </div>
+
+  <div class="pg">03 / 03</div>
+</section>
+
+</body>
+</html>
